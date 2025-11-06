@@ -81,8 +81,12 @@ class IntersectionsDetector:
 
     @staticmethod
     def filter_intersections(image, intersections, size=10):
-        """Filter intersections to remove false positives"""
-        model = load_model('models/lattice_points.model.keras')
+        """Filter intersections to remove false positives. Falls back to passthrough if model unavailable."""
+        try:
+            model = load_model('models/lattice_points.model.keras', compile=False)
+        except Exception:
+            # If the lattice model cannot be loaded (version/format mismatch), skip ML filtering
+            return intersections
 
         filtered_intersections = []
 

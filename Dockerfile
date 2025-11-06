@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     wget \
     ca-certificates \
     unzip \
+    stockfish \
     libgl1 \
     libglib2.0-0 \
     libsm6 \
@@ -18,13 +19,9 @@ RUN apt-get update && apt-get install -y \
     libgomp1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Télécharger et installer Stockfish pour Linux
+# Mettre à disposition Stockfish là où l'app le cherche
 RUN mkdir -p /app/stockfish && \
-    wget https://github.com/official-stockfish/Stockfish/releases/download/sf_16.1/stockfish_16.1_linux_x64_avx2.zip -O /tmp/stockfish.zip && \
-    unzip /tmp/stockfish.zip -d /tmp/ && \
-    mv /tmp/stockfish_16.1_linux_x64_avx2/stockfish_16.1_linux_x64_avx2 /app/stockfish/stockfish-16.1 && \
-    chmod +x /app/stockfish/stockfish-16.1 && \
-    rm -rf /tmp/stockfish.zip /tmp/stockfish_16.1_linux_x64_avx2
+    ln -s /usr/games/stockfish /app/stockfish/stockfish-16.1
 
 # Copier le fichier requirements.txt
 COPY requirements.txt .

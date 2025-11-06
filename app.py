@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import traceback
 
 from flask import Flask, request, jsonify
 from stockfish import Stockfish
@@ -7,6 +8,9 @@ from detectors.chess_position_detector import ChessPositionDetector
 
 
 app = Flask(__name__)
+
+# Load heavy models once (YOLO, TF) via detectors
+_chess_position_detector = ChessPositionDetector()
 
 @app.route('/')
 def hello_chess_snapshot():
@@ -26,11 +30,10 @@ def get_chess_position():
         return jsonify({'error': 'Invalid image', 'details': 'Could not decode image (unsupported/empty/corrupted).'}), 400
 
     try:
-        chess_position_detector = ChessPositionDetector()
-        fen = chess_position_detector.detect(original_image)
+        fen = _chess_position_detector.detect(original_image)
         return jsonify({'fen': fen})
-    except Exception as e:
-        return jsonify({'error': 'Detection failed', 'details': str(e)}), 500
+    except Exception:
+        return jsonify({'error': 'Detection failed', 'details': traceback.format_exc()}), 500
 
 @app.route('/api/get_best_move', methods=['POST'])
 def get_best_move():
@@ -44,8 +47,8 @@ def get_best_move():
         stockfish.set_fen_position(fen)
         best_move = stockfish.get_best_move()
         return jsonify({'best_move': best_move})
-    except Exception as e:
-        return jsonify({'error': 'Engine failed', 'details': str(e)}), 500
+    except Exception:
+        return jsonify({'error': 'Engine failed', 'details': traceback.format_exc()}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)

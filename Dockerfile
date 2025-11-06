@@ -27,6 +27,12 @@ RUN mkdir -p /app/stockfish && \
 COPY requirements.txt .
 
 # Installer les dépendances Python
+# Installer PyTorch CPU (dépendance d'ultralytics) avant le reste
+RUN pip install --no-cache-dir \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    torch==2.1.2+cpu torchvision==0.16.2+cpu torchaudio==2.1.2+cpu
+
+# Installer les dépendances Python
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier tous les fichiers de l'application
